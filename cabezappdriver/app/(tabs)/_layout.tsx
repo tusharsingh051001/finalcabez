@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
-import { Tabs } from 'expo-router';
-import * as Location from 'expo-location';
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Platform } from "react-native";
+import { Tabs } from "expo-router";
+import * as Location from "expo-location";
+import Colors from "@/constants/Colors";
+import Entypo from "@expo/vector-icons/Entypo";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const [location, setLocation] = useState<{ latitude: number | null; longitude: number | null }>({
+  const [location, setLocation] = useState<{
+    latitude: number | null;
+    longitude: number | null;
+  }>({
     latitude: null,
     longitude: null,
   });
@@ -19,8 +19,8 @@ export default function TabLayout() {
   useEffect(() => {
     const getLocationUpdates = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
         return;
       }
 
@@ -45,43 +45,50 @@ export default function TabLayout() {
     <View style={styles.container}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: Colors.light.tint,
           headerShown: false,
-          tabBarButton: HapticTab,
-          tabBarBackground: TabBarBackground,
           tabBarStyle: Platform.select({
             ios: {
-              position: 'absolute',
+              position: "absolute",
             },
             default: {},
           }),
-        }}>
+        }}
+      >
         <Tabs.Screen
           name="home"
           options={{
-            title: 'Home',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+            title: "Home",
+            tabBarIcon: ({ color }) => (
+              <Entypo name="home" size={24} color="black" />
+            ),
           }}
         />
         <Tabs.Screen
           name="attendance"
           options={{
-            title: 'Attendance',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+            title: "Attendance",
+            tabBarIcon: ({ color }) => (
+              <Entypo name="paper-plane" size={24} color="black" />
+            ),
           }}
         />
         <Tabs.Screen
           name="profile"
           options={{
-            title: 'My Profile',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+            title: "My Profile",
+            tabBarIcon: ({ color }) => (
+              <FontAwesome6 name="person" size={24} color="black" />
+            ),
           }}
         />
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Contact Us',
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name="phone.fill" color={color} />,
+            title: "Contact Us",
+            tabBarIcon: ({ color }) => (
+              <Entypo name="phone" size={24} color="black" />
+            ),
           }}
         />
       </Tabs>
@@ -94,26 +101,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   locationContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 50,
     left: 0,
     right: 0,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 10,
     borderRadius: 10,
     marginHorizontal: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
   },
   locationText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
   errorText: {
     fontSize: 14,
-    color: 'red',
+    color: "red",
   },
 });
