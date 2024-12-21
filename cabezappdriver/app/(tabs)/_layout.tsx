@@ -5,6 +5,7 @@ import * as Location from "expo-location";
 import Colors from "@/constants/Colors";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { useNavigationContainerRef } from "@react-navigation/native";
 
 export default function TabLayout() {
   const [location, setLocation] = useState<{
@@ -15,6 +16,7 @@ export default function TabLayout() {
     longitude: null,
   });
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const navigationRef = useNavigationContainerRef();
 
   useEffect(() => {
     const getLocationUpdates = async () => {
@@ -41,9 +43,18 @@ export default function TabLayout() {
     getLocationUpdates();
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = navigationRef.addListener("state", () => {
+      console.log("Current route:", navigationRef.getCurrentRoute());
+    });
+
+    return unsubscribe;
+  }, [navigationRef]);
+
   return (
     <View style={styles.container}>
       <Tabs
+        initialRouteName="attendance"
         screenOptions={{
           tabBarActiveTintColor: Colors.light.tint,
           headerShown: false,
@@ -83,7 +94,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="index"
+          name="contactus"
           options={{
             title: "Contact Us",
             tabBarIcon: ({ color }) => (
