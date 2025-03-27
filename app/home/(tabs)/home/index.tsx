@@ -3,10 +3,21 @@ import { SafeAreaView, StyleSheet, ActivityIndicator } from "react-native";
 import { WebView } from "react-native-webview";
 import { createClient, Client, SubscribePayload } from "graphql-ws";
 import env from "/Users/tusharsingh/Desktop/APK/cabezdummy/env.json";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// Helper function to retrieve stored UUID from AsyncStorage.
+const getUserUUID = async (): Promise<string | null> => {
+  try {
+    const uuid = await AsyncStorage.getItem("userUUID");
+    return uuid;
+  } catch (error) {
+    console.error("Error getting userUUID:", error);
+    return null;
+  }
+};
 
 const HASURA_WS_URL = env.HASURA_WS_URL;
 const HASURA_ADMIN_SECRET = env.HASURA_ADMIN_SECRET;
-const PARENT_UUID = env.PARENT_UUID;
 
 const LOCATION_SUBSCRIPTION = `
   subscription MySubscription($parentUUID: String!) {
@@ -33,47 +44,59 @@ const MapScreen = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const client: Client = createClient({
-      url: HASURA_WS_URL,
-      connectionParams: {
-        headers: {
-          "x-hasura-admin-secret": HASURA_ADMIN_SECRET,
-        },
-      },
-    });
-
-    const payload: SubscribePayload = {
-      query: LOCATION_SUBSCRIPTION,
-      variables: { parentUUID: PARENT_UUID },
-    };
-
-    let unsubscribe: () => void;
-
-    unsubscribe = client.subscribe(payload, {
-      next: (data) => {
-        const locationData =
-          data.data?.parent?.[0]?.driver?.locationdata?.[0];
-        if (locationData) {
-          setCoords({
-            latitude: locationData.latitude,
-            longitude: locationData.longitude,
-            speed_kmph: locationData.speed_kmph,
-          });
-          setLoading(false);
-        }
-      },
-      error: (err) => {
-        console.error("Subscription error:", err);
+    // Wrap subscription setup in an async function to wait for the UUID.
+    const subscribeToLocation = async () => {
+      const uuid = await getUserUUID();
+      if (!uuid) {
+        console.error("No UUID found");
         setLoading(false);
-      },
-      complete: () => {
-        console.log("Subscription completed");
-      },
-    });
+        return;
+      }
+      
+      const client: Client = createClient({
+        url: HASURA_WS_URL,
+        connectionParams: {
+          headers: {
+            "x-hasura-admin-secret": HASURA_ADMIN_SECRET,
+          },
+        },
+      });
 
-    return () => {
-      if (unsubscribe) unsubscribe();
+      const payload: SubscribePayload = {
+        query: LOCATION_SUBSCRIPTION,
+        variables: { parentUUID: uuid },
+      };
+
+      let unsubscribe: () => void;
+
+      unsubscribe = client.subscribe(payload, {
+        next: (data) => {
+          const locationData = data.data?.parent?.[0]?.driver?.locationdata?.[0];
+          if (locationData) {
+            setCoords({
+              latitude: locationData.latitude,
+              longitude: locationData.longitude,
+              speed_kmph: locationData.speed_kmph,
+            });
+            setLoading(false);
+          }
+        },
+        error: (err) => {
+          console.error("Subscription error:", err);
+          setLoading(false);
+        },
+        complete: () => {
+          console.log("Subscription completed");
+        },
+      });
+
+      // Return unsubscribe for cleanup.
+      return () => {
+        if (unsubscribe) unsubscribe();
+      };
     };
+
+    subscribeToLocation();
   }, []);
 
   if (loading) {

@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, useColorScheme, ActivityIndicator } from "react-native";
 import { fetchPersonalData, PersonalData } from "@/data/personalData";
-import env from "/Users/tusharsingh/Desktop/APK/cabezdummy/env.json";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const PARENT_UUID = env.PARENT_UUID;
-
+const getUserUUID = async (): Promise<string | null> => {
+  try {
+    const uuid = await AsyncStorage.getItem("userUUID");
+    return uuid;
+  } catch (error) {
+    console.error("Error getting userUUID:", error);
+    return null;
+  }
+};
 
 const ParentProfile = () => {
   const colorScheme = useColorScheme();
@@ -17,7 +24,13 @@ const ParentProfile = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const personal = await fetchPersonalData(PARENT_UUID);
+        const uuid = await getUserUUID();
+        if (!uuid) {
+          setError("No user UUID found.");
+          setLoading(false);
+          return;
+        }
+        const personal = await fetchPersonalData(uuid);
         if (personal) {
           setData(personal);
         } else {

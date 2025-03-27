@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, useColorScheme, ActivityIndicator } from "react-native";
 import { fetchDriverData } from "@/data/driverData";
-import env from "/Users/tusharsingh/Desktop/APK/cabezdummy/env.json";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const PARENT_UUID = env.PARENT_UUID;
+const getUserUUID = async (): Promise<string | null> => {
+  try {
+    const uuid = await AsyncStorage.getItem("userUUID");
+    return uuid;
+  } catch (error) {
+    console.error("Error getting userUUID:", error);
+    return null;
+  }
+};
 
 const DriverProfile = () => {
   const colorScheme = useColorScheme();
@@ -25,14 +33,20 @@ const DriverProfile = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const driver = await fetchDriverData(PARENT_UUID);
-        if (driver) {
-          setData(driver);
-        } else {
-          setError("No driver data found.");
+        const uuid = await getUserUUID();
+        if (!uuid) {
+          setError("No user UUID found.");
+          setLoading(false);
+          return;
         }
-      } catch (err: any) {
-        setError("Failed to fetch driver data.");
+        const personal = await fetchDriverData(uuid);
+        if (personal) {
+          setData(personal);
+        } else {
+          setError("No personal data found.");
+        }
+      } catch (err) {
+        setError("Failed to fetch personal data.");
       } finally {
         setLoading(false);
       }

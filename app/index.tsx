@@ -1,15 +1,15 @@
+import React, { useEffect } from "react";
 import {
   StyleSheet,
   SafeAreaView,
   View,
   Image,
 } from "react-native";
-
-import React, { useEffect } from "react";
-import cabezLogo from "@/assets/images/cabezLogo.png";
-import driverImg from "@/assets/images/driverImg.png";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter, useNavigation } from "expo-router";
 
+import cabezLogo from "@/assets/images/cabezLogo.png";
+import driverImg from "@/assets/images/driverImg.png";
 
 const Index = () => {
   const router = useRouter();
@@ -19,11 +19,26 @@ const Index = () => {
     navigation.setOptions({
       headerShown: false,
     });
-  }, []);
+  }, [navigation]);
+
+  const checkAuth = async (): Promise<boolean> => {
+    try {
+      const userUUID = await AsyncStorage.getItem("userUUID");
+      return !!userUUID;
+    } catch (error) {
+      console.error("Error checking auth:", error);
+      return false;
+    }
+  };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace("/home");
+    const timer = setTimeout(async () => {
+      const isAuthenticated = await checkAuth();
+      if (!isAuthenticated) {
+        router.replace("/login");
+      } else {
+        router.replace("/home");
+      }
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -51,14 +66,15 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     position: "absolute",
-    top: "25%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
+    top: "15%",
+    left: 0,
+    right: 0,
+    alignItems: "center",
   },
   driverImgContainer: {
     position: "absolute",
-    top: "70%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
+    top: "60%",
+    left: "10%",
+    transform: [{ translateX: -50 }, { translateY: -50 }],
   },
 });

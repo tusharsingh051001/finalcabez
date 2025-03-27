@@ -4,15 +4,21 @@ import Collapsible from "react-native-collapsible";
 import DriverProfile from "@/components/appComponents/profileComponents/DriverProfile";
 import ParentProfile from "@/components/appComponents/profileComponents/ParentProfile";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
 const Profile = () => {
   const [openTab, setOpenTab] = useState(null);
   const colorScheme = useColorScheme(); // Detect light or dark mode
-
+  const router = useRouter();
   const isDarkMode = colorScheme === "dark";
 
   const toggleAccordion = (tab: any) => {
     setOpenTab(openTab === tab ? null : tab);
+  };
+
+  const handleLogout = () => {
+    // Implement your logout logic here (e.g., clear credentials)
+    router.replace("/login");
   };
 
   return (
@@ -42,6 +48,12 @@ const Profile = () => {
           </View>
         </Collapsible>
       </View>
+      {/* Logout button container */}
+      <View style={styles.logoutContainer}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -70,7 +82,6 @@ const styles = StyleSheet.create({
     borderLeftWidth: 6,
     borderLeftColor: "#FFA500",
     borderStyle: "solid",
-    // remove borderWidth and borderColor if not needed
   },
   tabTitle: {
     fontSize: 16,
@@ -90,7 +101,6 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginTop: 5,
   },
-
   darkTab: {
     backgroundColor: "#1E1E1E",
     borderColor: "#333",
@@ -101,6 +111,22 @@ const styles = StyleSheet.create({
   darkProfileContainer: {
     backgroundColor: "#1E1E1E",
     borderColor: "#333",
+  },
+  logoutContainer: {
+    marginTop: "auto", // Push logout button to bottom
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  logoutButton: {
+    backgroundColor: "red",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  logoutButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
