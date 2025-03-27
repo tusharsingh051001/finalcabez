@@ -9,78 +9,47 @@ import {
   useColorScheme,
 } from 'react-native';
 
-import env from "/Users/tusharsingh/Desktop/APK/cabezdummy/env.json";
-
-const HASURA_WS_URL = env.HASURA_WS_URL;
-const HASURA_ADMIN_SECRET = env.HASURA_ADMIN_SECRET;
-const PARENT_UUID = env.PARENT_UUID;
-
-const HISTORY_QUERY = `
-  query MyQuery($parentUUID: String!) {
-    parent(where: {uuid: {_eq: $parentUUID}}) {
-      attendances {
-        to_fro
-        rider_id
-        attendance_flag
-        attendance_date
-      }
-    }
-  }
-`;
-
-interface HistoryItem {
-  id: number;
-  status: string;
-  startLocation: string;
-  endLocation: string;
-  date: string;
-}
-
 export default function HistoryScreen() {
+  interface HistoryItem {
+    id: number;
+    status: string;
+    startLocation: string;
+    endLocation: string;
+    date: string;
+  }
+
   const [historyData, setHistoryData] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme(); // Detect light or dark mode
+
+  const dummyData = [
+    {
+      id: 1,
+      status: "Present",
+      startLocation: "Home->",
+      endLocation: "School",
+      date: "2025-01-30",
+    },
+    {
+      id: 2,
+      status: "Present",
+      startLocation: "School->",
+      endLocation: "Home",
+      date: "2025-01-30",
+    },
+    {
+      id: 3,
+      status: "Absent",
+      startLocation: "Home->",
+      endLocation: "School",
+      date: "2025-01-31",
+    },
+  ];
 
   useEffect(() => {
-    const fetchHistoryData = async () => {
-      try {
-        const response = await fetch(HASURA_WS_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-hasura-admin-secret": HASURA_ADMIN_SECRET,
-          },
-          body: JSON.stringify({ query: HISTORY_QUERY, variables: { parentUUID: PARENT_UUID } }),
-        });
-        const result = await response.json();
-        if (result.errors) {
-          throw new Error(result.errors[0].message);
-        }
-        const attendances = result.data.parent[0]?.attendances || [];
-        const mappedData: HistoryItem[] = attendances.map((attendance: any, index: number) => {
-          const status = attendance.attendance_flag.charAt(0).toUpperCase() + attendance.attendance_flag.slice(1);
-          const { to_fro } = attendance;
-          const startLocation = to_fro === "to" ? "Home->" : "School->";
-          const endLocation = to_fro === "to" ? "School" : "Home";
-          return {
-            id: index,
-            status,
-            startLocation,
-            endLocation,
-            date: attendance.attendance_date,
-          };
-        });
-        setHistoryData(mappedData);
-      } catch (err) {
-        console.error("Error fetching history data:", err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHistoryData();
+    setHistoryData(dummyData);
+    setLoading(false);
   }, []);
 
   if (loading) {
@@ -218,3 +187,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+

@@ -23,7 +23,7 @@ const HomeLayout = () => {
       }}
     >
       <Tabs.Screen
-        name="(tabs)/home/index"
+        name="index"
         options={{
           title: "Home",
           tabBarLabel: "Home",

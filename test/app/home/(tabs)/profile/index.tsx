@@ -59,18 +59,18 @@ const styles = StyleSheet.create({
   tab: {
     padding: 15,
     borderRadius: 10,
+    borderWidth: 1,
     backgroundColor: "white",
+    borderColor: "#E0E0E0",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    elevation: 0,
+    elevation: 2, 
     flexDirection: "row",
     alignItems: "center",
     borderLeftWidth: 6,
-    borderLeftColor: "#FFA500",
-    borderStyle: "solid",
-    // remove borderWidth and borderColor if not needed
+    borderLeftColor: "#FFA500", 
   },
   tabTitle: {
     fontSize: 16,
